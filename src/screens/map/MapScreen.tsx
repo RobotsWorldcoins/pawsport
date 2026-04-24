@@ -29,6 +29,7 @@ export default function MapScreen() {
   const [selectedPlace, setSelectedPlace] = useState<LocationType | null>(null);
   const [loading, setLoading] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
+  const [mapUnavailable, setMapUnavailable] = useState(false);
 
   const defaultCity = CITIES[activeDog?.city as keyof typeof CITIES] || CITIES.lisbon;
   const [region, setRegion] = useState({
@@ -55,17 +56,25 @@ export default function MapScreen() {
     const lat = userLocation?.latitude || defaultCity.lat;
     const lng = userLocation?.longitude || defaultCity.lng;
     try {
-      // Load from DB first
+      // Load from DB first (always safe — no Maps key required)
       const dbPlaces = await getLocationsFromDB(lat, lng, 15, selectedCategory);
 
-      // Also fetch live from Google Places and upsert new ones
-      const googlePlaces = await searchNearbyPlaces(lat, lng, selectedCategory, 8000);
-      for (const gp of googlePlaces) {
-        if (!gp.google_place_id) continue;
-        // Upsert: insert if not exists
-        await supabase
-          .from('locations')
-          .upsert({ ...gp, city: activeDog?.city || 'lisbon' }, { onConflict: 'google_place_id', ignoreDuplicates: true });
+      // Fetch live from Google Places — degrade gracefully if key fails
+      try {
+        const googlePlaces = await searchNearbyPlaces(lat, lng, selectedCategory, 8000);
+        for (const gp of googlePlaces) {
+          if (!gp.google_place_id) continue;
+          await supabase
+            .from('locations')
+            .upsert(
+              { ...gp, city: activeDog?.city || 'lisbon' },
+              { onConflict: 'google_place_id', ignoreDuplicates: true }
+            );
+        }
+        setMapUnavailable(false);
+      } catch (googleErr) {
+        console.warn('Google Places unavailable — falling back to DB only:', googleErr);
+        setMapUnavailable(true);
       }
 
       const allPlaces = await getLocationsFromDB(lat, lng, 15, selectedCategory);
@@ -73,9 +82,15 @@ export default function MapScreen() {
         ? allPlaces.filter((p) => activeTags.every((t) => p.filter_tags?.includes(t)))
         : allPlaces;
 
-      setPlaces(filtered.sort((a, b) => distanceKm(lat, lng, a.lat, a.lng) - distanceKm(lat, lng, b.lat, b.lng)));
+      setPlaces(
+        filtered.sort(
+          (a, b) => distanceKm(lat, lng, a.lat, a.lng) - distanceKm(lat, lng, b.lat, b.lng)
+        )
+      );
     } catch (e) {
       console.error('Load places error:', e);
+      setMapUnavailable(true);
+      setPlaces([]);
     } finally {
       setLoading(false);
     }
@@ -121,6 +136,15 @@ export default function MapScreen() {
           </Marker>
         ))}
       </MapView>
+
+      {/* Maps unavailable banner */}
+      {mapUnavailable && (
+        <View style={styles.mapUnavailableBanner}>
+          <Text style={styles.mapUnavailableText}>
+            📍 Live map unavailable — check your connection
+          </Text>
+        </View>
+      )}
 
       {/* Top Controls */}
       <View style={[styles.topControls, { top: insets.top + 8 }]}>
@@ -305,6 +329,20 @@ const styles = StyleSheet.create({
   loadingOverlay: {
     position: 'absolute', top: '30%', alignSelf: 'center',
     backgroundColor: Colors.surface, padding: Spacing.md, borderRadius: BorderRadius.md, ...Shadow.md,
+  },
+  mapUnavailableBanner: {
+    position: 'absolute',
+    top: 0, left: 0, right: 0,
+    backgroundColor: Colors.error,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    alignItems: 'center',
+    zIndex: 20,
+  },
+  mapUnavailableText: {
+    color: '#fff',
+    fontSize: FontSize.sm,
+    fontWeight: FontWeight.semibold,
   },
   bottomSheet: {
     flex: 1, backgroundColor: Colors.surface,

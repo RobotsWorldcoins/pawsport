@@ -1,40 +1,40 @@
 export const Colors = {
-  primary: '#FF6B35',
-  primaryDark: '#E85A24',
-  primaryLight: '#FF8F65',
-  secondary: '#FFD166',
-  accent: '#06D6A0',
-  accentBlue: '#118AB2',
+  primary: '#FF6B35',       // warm orange
+  primaryDark: '#E55A25',
+  primaryLight: '#FF8C5A',
+  secondary: '#F5A623',     // golden yellow
+  accent: '#4A7C59',        // earthy green
+  accentBlue: '#118AB2',    // kept for ArenaScreen sprint config
 
-  background: '#F8F9FA',
+  background: '#FAF3E0',    // warm beige
   surface: '#FFFFFF',
-  surfaceAlt: '#F0F2F5',
+  surfaceAlt: '#FFF8F0',
 
-  text: '#1A1A2E',
-  textSecondary: '#6B7280',
-  textMuted: '#9CA3AF',
+  text: '#2C2C2C',          // charcoal
+  textSecondary: '#6B6B6B',
+  textMuted: '#A0A0A0',
   textInverse: '#FFFFFF',
 
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
+  border: '#E8DDD0',
+  borderLight: '#F0E8DC',
 
-  success: '#10B981',
-  warning: '#F59E0B',
-  error: '#EF4444',
+  success: '#4A7C59',
+  warning: '#F5A623',
+  error: '#E53E3E',
   info: '#3B82F6',
 
   // Premium tiers
-  free: '#9CA3AF',
-  silver: '#C0C0C0',
-  silverDark: '#A8A8A8',
-  gold: '#FFD700',
-  goldDark: '#FFA500',
+  free: '#A0A0A0',
+  silver: '#A8A8A8',
+  silverDark: '#888888',
+  gold: '#F5A623',
+  goldDark: '#D4891A',
 
   // XP / gamification
   xpBar: '#FF6B35',
   xpBackground: '#FFE8DF',
   streak: '#FF6B35',
-  badge: '#FFD166',
+  badge: '#F5A623',
 
   // Tiers
   tierPuppy: '#95E1D3',
@@ -45,7 +45,7 @@ export const Colors = {
   tierChallenger: '#E94F37',
   tierChampion: '#C77DFF',
   tierElite: '#7B2FBE',
-  tierLegend: '#FFD700',
+  tierLegend: '#F5A623',
   tierMythic: '#FF6B35',
 
   overlay: 'rgba(0,0,0,0.5)',
@@ -97,30 +97,30 @@ export const FontWeight = {
 
 export const Shadow = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#8B6F47',
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
-    shadowRadius: 3,
+    shadowRadius: 4,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowColor: '#8B6F47',
+    shadowOffset: { width: 0, height: 3 },
     shadowOpacity: 0.12,
-    shadowRadius: 8,
+    shadowRadius: 10,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowColor: '#8B6F47',
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.16,
-    shadowRadius: 16,
+    shadowRadius: 20,
     elevation: 8,
   },
   colored: (color: string) => ({
     shadowColor: color,
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
+    shadowOpacity: 0.28,
     shadowRadius: 12,
     elevation: 6,
   }),

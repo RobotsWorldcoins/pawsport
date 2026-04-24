@@ -58,24 +58,35 @@ export default function ArenaScreen() {
   const season = new Date().toISOString().slice(0, 7);
 
   const loadLeaderboard = async (arenaType: ArenaType) => {
-    const { data } = await supabase
-      .from('arena_results')
-      .select('*, dog:dogs(*)')
-      .eq('arena_type', arenaType)
-      .eq('season', season)
-      .order('score', { ascending: false })
-      .limit(10);
-    if (data) setLeaderboard(data as any);
+    try {
+      const { data, error } = await supabase
+        .from('arena_results')
+        .select('*, dog:dogs(*)')
+        .eq('arena_type', arenaType)
+        .eq('season', season)
+        .order('score', { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      setLeaderboard((data as any) ?? []);
+    } catch (e) {
+      console.warn('Arena leaderboard load error:', e);
+      setLeaderboard([]);
+    }
 
     if (activeDog) {
-      const { data: my } = await supabase
-        .from('arena_results')
-        .select('*')
-        .eq('arena_type', arenaType)
-        .eq('dog_id', activeDog.id)
-        .eq('season', season)
-        .maybeSingle();
-      setMyResult(my);
+      try {
+        const { data: my } = await supabase
+          .from('arena_results')
+          .select('*')
+          .eq('arena_type', arenaType)
+          .eq('dog_id', activeDog.id)
+          .eq('season', season)
+          .maybeSingle();
+        setMyResult(my ?? null);
+      } catch (e) {
+        console.warn('Arena my result load error:', e);
+        setMyResult(null);
+      }
     }
   };
 
@@ -197,7 +208,7 @@ export default function ArenaScreen() {
             ) : (
               leaderboard.map((result, i) => (
                 <View
-                  key={result.id}
+                  key={result.id ?? i}
                   style={[styles.leaderboardRow, result.dog_id === activeDog?.id && styles.leaderboardRowMe]}
                 >
                   <Text style={styles.leaderboardRank}>{getRankEmoji(i)}</Text>
@@ -209,10 +220,16 @@ export default function ArenaScreen() {
                     </View>
                   )}
                   <View style={styles.leaderboardInfo}>
-                    <Text style={styles.leaderboardName}>{result.dog?.name}</Text>
-                    <Text style={styles.leaderboardBreed}>{result.dog?.breed}</Text>
+                    <Text style={styles.leaderboardName}>
+                      {result.dog?.name ?? 'Unknown'}
+                    </Text>
+                    <Text style={styles.leaderboardBreed}>
+                      {result.dog?.breed ?? '—'}
+                    </Text>
                   </View>
-                  <Text style={styles.leaderboardScore}>{result.score} pts</Text>
+                  <Text style={styles.leaderboardScore}>
+                    {result.score ?? 0} pts
+                  </Text>
                 </View>
               ))
             )}
