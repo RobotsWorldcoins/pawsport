@@ -276,7 +276,7 @@ export default function HomeScreen() {
           { icon: '🗺️', label: 'Explore', screen: 'Map' },
           { icon: '📸', label: 'Check In', screen: 'Checkin' },
           { icon: '⚔️', label: 'Arena', screen: 'Arena' },
-          { icon: '🎁', label: 'Rewards', screen: 'Rewards' },
+          { icon: '🎁', label: 'Rewards', screen: 'Premium' },
         ].map((action) => (
           <TouchableOpacity
             key={action.screen}
